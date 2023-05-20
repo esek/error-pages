@@ -125,7 +125,6 @@ jobs:
           secrets: |
             kv/data/common registry_username;
             kv/data/common registry_password;
-            kv/data/${{ needs.env-vars.outputs.basename }}/${{ needs.env-vars.outputs.env }} DEPLOY_URL;
       - name: setup buildx
         uses: docker/setup-buildx-action@v2
         with:
@@ -143,8 +142,6 @@ jobs:
         with:
           context: .
           push: true
-          build-args: |
-            DEPLOY_URL=${{ steps.s.outputs.DEPLOY_URL }}
           tags: ${{ needs.env-vars.outputs.image_name }}
 
   # This should need build and use the image to test
@@ -241,7 +238,6 @@ jobs:
             kv/data/common docker_cert;
             kv/data/common docker_key;
             kv/data/common docker_host;
-            kv/data/${{ needs.env-vars.outputs.basename }}/${{ needs.env-vars.outputs.env }} DEPLOY_URL;
       - name: set variables
         run: |
           echo "IMAGE_NAME=${{ needs.env-vars.outputs.image_name }}" >> $GITHUB_ENV
@@ -250,10 +246,6 @@ jobs:
           echo "ENV=${{ needs.env-vars.outputs.env }}" >> $GITHUB_ENV
           echo "PROJECT_NAME=${{ needs.env-vars.outputs.project_name }}" >> $GITHUB_ENV
           echo "COMPOSE_PROJECT_NAME=${{ needs.env-vars.outputs.project_name }}" >> $GITHUB_ENV
-
-          if [ ${{ needs.env-vars.outputs.env }} = 'review' ]; then
-            echo "DEPLOY_URL=${{ needs.env-vars.outputs.branch }}-${{ needs.env-vars.outputs.basename }}.review.esek.se" >> $GITHUB_ENV
-          fi
       - name: checkout repo
         uses: actions/checkout@v3
       - name: start deployment
@@ -306,14 +298,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: ${{ job.status }}
           env: ${{ steps.deployment.outputs.env }}
-          env_url: https://${{ env.DEPLOY_URL }}
+          env_url: https://esek.se
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-      - if: ${{ github.event.pull_request && github.event.action == 'opened' && !env.ACT }}
-        name: comment deployment url to pr
-        uses: mshick/add-pr-comment@v1
-        with:
-          message: I have deployed this PR to [${{ env.DEPLOY_URL }}](https://${{ env.DEPLOY_URL }}) 🚀
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
   teardown:
     runs-on: self-hosted
