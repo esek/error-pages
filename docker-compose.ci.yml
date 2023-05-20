@@ -1,0 +1,17 @@
+version: '3.9'
+networks:
+  traefik:
+    external: true
+
+services:
+  error-pages:
+    image: '${IMAGE_NAME}'
+    networks:
+      - traefik
+    restart: unless-stopped
+    labels:
+      - 'traefik.enable: "true"'
+      - 'traefik.docker.network: "web"'
+      - 'traefik.http.routers.errorpage.entrypoints: "websecure"'
+      - 'traefik.http.routers.errorpage.rule: "HostRegexp(`{host:.+}`)"'
+      - 'traefik.http.services.globalerrorpage.loadbalancer.server.port: "80"'

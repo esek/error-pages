@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  error-pages:
+    extends:
+      file: docker-compose.ci.yml
+      service: error-pages
+    restart: unless-stopped

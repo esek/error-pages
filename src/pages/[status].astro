@@ -1,0 +1,43 @@
+---
+import type { GetStaticPaths } from 'astro';
+import DefaultLayout from '../layouts/default-layout.astro';
+import { STATUSES } from '../lib/statuses';
+import Cable from '../components/cable.astro';
+import Plug from '../components/plug.astro';
+export const getStaticPaths: GetStaticPaths = () => {
+  return STATUSES.map((s) => ({
+    params: { status: s.code },
+    props: { status: s.code, message: s.message },
+  }));
+};
+
+type Props = {
+  status: string;
+  message: string;
+};
+
+const { message, status } = Astro.props;
+---
+
+<DefaultLayout {...Astro.props}>
+  <div
+    class="h-[100dvh] relative overflow-hidden flex flex-col gap-32 justify-between md:flex-row md:items-center md:justify-center"
+  >
+    <div
+      class="w-full rotate-90 md:rotate-0 -translate-y-[5dvh] md:translate-y-0"
+    >
+      <Cable />
+    </div>
+
+    <main class="flex items-center justify-center flex-col text-center">
+      <h1 class="font-black text-9xl">{status}</h1>
+      <p class="text-xl">{message}</p>
+    </main>
+
+    <div
+      class="rotate-90 md:rotate-0 w-full translate-y-[5dvh] md:translate-y-0"
+    >
+      <Plug />
+    </div>
+  </div>
+</DefaultLayout>
