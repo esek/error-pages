@@ -13,6 +13,20 @@ const buildNginxConf = (errorPages, locations) => `server {
     location / {
       return 404;
   }
+
+  # Static assets
+  
+  location /font.woff2 {
+    alias /usr/share/nginx/html/font.woff2;
+  }
+
+  location /_astro {
+    alias /usr/share/nginx/html/_astro;
+  }
+
+  location /site.webmanifest {
+    alias /usr/share/nginx/html/site.webmanifest;
+  }
 }
 `;
 
