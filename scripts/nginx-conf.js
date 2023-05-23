@@ -15,16 +15,17 @@ server {
     
     location / {
       return 404;
-  }
+    }
 
-  # Static assets
-  location /assets {
-    alias /usr/share/nginx/html/assets;
-  }
+    # Static assets
+    location /assets {
+      alias /usr/share/nginx/html/assets;
+    }
 
-  location /_astro {
-    alias /usr/share/nginx/html/_astro;
-  }
+    # Astro build output, css and js
+    location /_astro {
+      alias /usr/share/nginx/html/_astro;
+    }
 }
 `;
 
