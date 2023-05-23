@@ -2,22 +2,23 @@ import fs from 'fs/promises';
 
 const DIST_PATH = './dist';
 
-const buildNginxConf = (errorPages) => `server {
-    listen 80;
-    server_name localhost;
+const buildNginxConf = (errorPages, locations) => `server {
+    listen 80 default_server;
+    root /usr/share/nginx/html;
 
     ${errorPages}
+
+    ${locations}
     
     location / {
-      root  /usr/share/nginx/html;
-      internal;
+      return 404;
   }
 }
 `;
 
 const filterFiles = (files) => {
-  // status code files are all xxx-page.html
-  const regex = /(\d{3})-page.html$/;
+  // status code files are all xxx.html
+  const regex = /(\d{3}).html$/;
 
   return files
     .filter((file) => regex.test(file))
@@ -36,10 +37,18 @@ const readFileNames = async () => {
 const generateNginxConf = async () => {
   const files = await readFileNames();
   const errorPages = files
-    .map((statusCode) => `error_page ${statusCode} ${statusCode}-page.html;`)
+    .map((statusCode) => `error_page ${statusCode} /${statusCode}.html;`)
     .join('\n    ');
 
-  const nginxConf = buildNginxConf(errorPages);
+  const locations = files
+    .map(
+      (statusCode) => `location = /${statusCode}.html {
+      internal;
+}`
+    )
+    .join('\n    ');
+
+  const nginxConf = buildNginxConf(errorPages, locations);
 
   console.log(nginxConf);
 };
