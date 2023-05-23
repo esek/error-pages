@@ -4,30 +4,27 @@ const DIST_PATH = './dist';
 
 const buildNginxConf = (errorPages) => `server {
     listen 80;
-    index index.html;
     server_name localhost;
-    root /usr/share/nginx/html;
 
     ${errorPages}
-
-    location /testing {
-        fastcgi_pass unix:/does/not/exist;
-    }
+    
+    location / {
+      root  /usr/share/nginx/html;
+      internal;
+  }
 }
 `;
 
 const filterFiles = (files) => {
-  // status code files are either xxx.html or xxx/index.html
-  const regex = /(\d{3})(?:.html|$)$/;
+  // status code files are all xxx-page.html
+  const regex = /(\d{3})-page.html$/;
+
   return files
     .filter((file) => regex.test(file))
     .map((file) => {
       const [, match] = file.match(regex);
 
-      return {
-        statusCode: match,
-        isDirectory: !file.endsWith('.html'),
-      };
+      return match;
     });
 };
 
@@ -39,28 +36,23 @@ const readFileNames = async () => {
 const generateNginxConf = async () => {
   const files = await readFileNames();
   const errorPages = files
-    .map(({ statusCode, isDirectory }) => {
-      const location = isDirectory
-        ? `/${statusCode}/index.html`
-        : `/${statusCode}.html`;
-      return `error_page ${statusCode} ${location};`;
-    })
-    .join('\n');
+    .map((statusCode) => `error_page ${statusCode} ${statusCode}-page.html;`)
+    .join('\n    ');
 
-  const locations = files
-    .map(({ statusCode, isDirectory }) => {
-      const location = isDirectory
-        ? `/${statusCode}/index.html`
-        : `/${statusCode}.html`;
+  // const locations = files
+  //   .map(({ statusCode, isDirectory }) => {
+  //     const location = isDirectory
+  //       ? `/${statusCode}/index.html`
+  //       : `/${statusCode}.html`;
 
-      return `location = ${location} {
-            root /usr/share/nginx/html;
-            internal;
-        }`;
-    })
-    .join('\n');
+  //     return `location = ${location} {
+  //           root /usr/share/nginx/html;
+  //           internal;
+  //       }`;
+  //   })
+  //   .join('\n');
 
-  const nginxConf = buildNginxConf(errorPages + '\n' + locations);
+  const nginxConf = buildNginxConf(errorPages);
 
   console.log(nginxConf);
 };
