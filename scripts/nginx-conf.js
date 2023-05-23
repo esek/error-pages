@@ -18,6 +18,10 @@ const buildNginxConf = (errorPages, locations) => `server {
   location /assets {
     alias /usr/share/nginx/html/assets;
   }
+
+  location /_astro {
+    alias /usr/share/nginx/html/_astro;
+  }
 }
 `;
 
