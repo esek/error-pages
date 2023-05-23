@@ -39,19 +39,6 @@ const generateNginxConf = async () => {
     .map((statusCode) => `error_page ${statusCode} ${statusCode}-page.html;`)
     .join('\n    ');
 
-  // const locations = files
-  //   .map(({ statusCode, isDirectory }) => {
-  //     const location = isDirectory
-  //       ? `/${statusCode}/index.html`
-  //       : `/${statusCode}.html`;
-
-  //     return `location = ${location} {
-  //           root /usr/share/nginx/html;
-  //           internal;
-  //       }`;
-  //   })
-  //   .join('\n');
-
   const nginxConf = buildNginxConf(errorPages);
 
   console.log(nginxConf);
