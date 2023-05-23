@@ -42,7 +42,7 @@ const generateNginxConf = async () => {
 
   const locations = files
     .map(
-      (statusCode) => `location = /${statusCode}.html {
+      (statusCode) => `location /${statusCode}.html {
       internal;
 }`
     )
