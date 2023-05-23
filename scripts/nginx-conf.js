@@ -2,7 +2,10 @@ import fs from 'fs/promises';
 
 const DIST_PATH = './dist';
 
-const buildNginxConf = (errorPages, locations) => `server {
+const buildNginxConf = (errorPages, locations) => `
+server_tokens off;
+
+server {
     listen 80 default_server;
     root /usr/share/nginx/html;
 
